@@ -1,4 +1,5 @@
-const BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+// Em desenvolvimento a API roda na porta 3000; em produção o backend serve o frontend (mesma origem).
+const BASE = import.meta.env.VITE_API_URL ?? (import.meta.env.DEV ? 'http://localhost:3000' : '');
 
 async function request(method, path, body) {
   let res;

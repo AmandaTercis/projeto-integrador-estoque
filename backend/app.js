@@ -1,5 +1,7 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
+const fs = require('fs');
 const produtos = require('./src/produtoController');
 const fornecedores = require('./src/fornecedorController');
 const assoc = require('./src/associacaoController');
@@ -8,7 +10,9 @@ const app = express();
 app.use(cors());
 app.use(express.json({ limit: '5mb' })); // imagens do produto chegam em base64
 
-app.get('/', (req, res) => res.send('API de Controle de Estoque rodando!'));
+const dist = path.join(__dirname, '..', 'frontend', 'dist');
+const temFrontend = fs.existsSync(dist);
+if (!temFrontend) app.get('/', (req, res) => res.send('API de Controle de Estoque rodando!'));
 
 app.get('/produtos', produtos.listar);
 app.get('/produtos/:id', produtos.obter);
@@ -26,6 +30,9 @@ app.get('/produtos/:produtoId/fornecedores', assoc.fornecedoresDoProduto);
 app.post('/produtos/:produtoId/fornecedores', assoc.associar);
 app.delete('/produtos/:produtoId/fornecedores/:fornecedorId', assoc.desassociar);
 app.get('/fornecedores/:fornecedorId/produtos', assoc.produtosDoFornecedor);
+
+// Em produção, serve a interface React já compilada (frontend/dist).
+if (temFrontend) app.use(express.static(dist));
 
 app.use((err, req, res, next) => {
   console.error(err);
